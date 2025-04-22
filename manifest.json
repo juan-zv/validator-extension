@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "HTML and CSS Validator",
+    "version": "1.0",
+    "description": "Extension to quickly validate both HTML and CSS in any webpage.",
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    },
+    "background": {
+        "service_worker": "service-worker.js"
+    },
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "action": {
+        "default_title": "Click to open validator"
+    },
+    "permissions": [
+        "sidePanel",
+        "scripting",
+        "activeTab",
+        "contextMenus"
+    ]
+}

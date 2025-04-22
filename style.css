@@ -1,0 +1,17 @@
+:root {
+    --primary-color: #e6e6e6;
+    --secondary-color: #1f1f1f;
+}
+
+body {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #1f1f1f;
+        --secondary-color: #e6e6e6;
+    }
+}
+
