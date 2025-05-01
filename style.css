@@ -13,5 +13,9 @@ body {
         --primary-color: #1f1f1f;
         --secondary-color: #e6e6e6;
     }
+
+    img {
+        filter: invert();
+    }
 }
 
