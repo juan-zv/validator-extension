@@ -3,9 +3,56 @@
     --secondary-color: #1f1f1f;
 }
 
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+
 body {
     background-color: var(--primary-color);
+    color: var(--secondary-color);    
+}
+
+body img {
+    display: block;
+    margin: 0.5rem auto;
+}
+
+body h1 {
+    text-align: center;
+}
+
+body p {
+    text-align: center;
+}
+
+#results-container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#validate-btn {
+    display: block;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    margin: 0 auto;
+    padding: 1rem;
+    cursor: pointer;
+    font-size: 16px;
+    font-size: large;
+    font-weight: bold;
+    box-shadow: 5px 5px grey;
+}
+
+#validate-btn:hover {
+    background-color: var(--primary-color);
     color: var(--secondary-color);
+    box-shadow: none;
+    translate: 5px 5px;
+    transition: all 0.35s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {

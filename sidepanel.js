@@ -103,4 +103,3 @@ function escapeHtml(unsafe) {
          .replace(/'/g, "&#039;");
  }
 
- // MY script:

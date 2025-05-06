@@ -50,14 +50,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 // Add event listener to the button in the side panel to trigger validation
 document.getElementById('validate-btn').addEventListener('click', () => {
-    const HTMLerrors = document.createElement('p');
-    const CSSerrors = document.createElement('p');
+    const HTMLerrors = document.createElement('h3');
+    const CSSerrors = document.createElement('h3');
     document.body.appendChild(HTMLerrors);
     document.body.appendChild(CSSerrors);
 
     getCurrentTab().then(async (tab) => {
         // Check if tab and tab.url exist before trying to log
-        if (tab && tab.url) {
+        if (tab && tab.url && tab.url.startsWith('http')) {
             console.log("======= active tab url", tab.url); // Corrected: Use tab.url directly
             currentUrl = tab.url; // Store the URL in a variable for later use
             HTMLerrors.textContent = await validateHTML(currentUrl); // Append the URL to the body (or handle it as needed)
