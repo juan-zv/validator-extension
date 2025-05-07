@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "HTML and CSS Validator",
+    "name": "HTML & CSS Validator",
     "version": "1.0",
     "description": "Extension to quickly validate both HTML and CSS in any webpage.",
     "icons": {

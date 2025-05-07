@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML & CSS validator</title>
+    <title>HTML & CSS Validator</title>
     <link rel="stylesheet" href="style.css">
     <script defer src="service-worker.js"></script>
+    <script defer src="sidepanel.js"></script>
 </head>
 <body>
     <img src="icon.png" alt="icon">
@@ -14,9 +15,13 @@
     <button type="button" id="validate-btn">Validate Current Website</button>
     <div id="results-container">
         <h2>Validation Results</h2>
-        <div id="results">
-        </div>
+        <h3 id="html-results"></h3>
+        <h3 id="css-results"></h3>
     </div>
-    <!-- <script src="sidepanel.js"></script> -->
+    <div id="footer">
+        <a rel="noopener" target="_blank" href="https://validator.w3.org/">W3C HTML Validator</a>
+        <a rel="noopener" target="_blank" href="https://jigsaw.w3.org/css-validator/">W3C CSS Validator</a>
+        <p>&copy; 2025 Juan Zurita</p>
+    </div>
 </body>
 </html>

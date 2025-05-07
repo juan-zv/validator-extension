@@ -1,105 +1,89 @@
-// sidepanel.js
-const validateBtn = document.getElementById('validate-btn');
-const resultsDiv = document.getElementById('results');
-// const loadingDiv = document.getElementById('loading');
 
-validateBtn.addEventListener('click', async () => {
-  resultsDiv.innerHTML = ''; // Clear previous results
-    // loadingDiv.style.display = 'block'; // Show loading indicator
+// Container and placeholder for the results
+const resultsContainer = document.getElementById('results-container');
+const HTMLerrors = document.getElementById('html-results');
+const CSSerrors = document.getElementById('css-results');
 
-  try {
-    // 1. Get the current tab's URL
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tabs || tabs.length === 0) {
-      throw new Error("Could not get active tab.");
+// Add event listener to the button in the side panel to trigger validation
+document.getElementById('validate-btn').addEventListener('click', () => {
+  // Clear previous results
+  resultsContainer.style.display = 'flex'; // Show the results container
+
+  HTMLerrors.textContent = "Validating HTML...";
+  CSSerrors.textContent = "Validating CSS...";
+
+  getCurrentTab().then(async (tab) => {
+    // Check if tab and tab.url exist before trying to log
+    if (tab && tab.url && tab.url.startsWith('http')) {
+      console.log("======= active tab url", tab.url); // Corrected: Use tab.url directly
+      currentUrl = tab.url; // Store the URL in a variable for later use
+      HTMLerrors.textContent = await validateHTML(currentUrl); // Append the URL to the body (or handle it as needed)
+      CSSerrors.textContent = await validateCSS(currentUrl); // Append the URL to the body (or handle it as needed)
+    } else if (tab) {
+      console.log("======= active tab does not have a URL (e.g., internal page)", tab);
+    } else {
+      console.log("======= Could not retrieve active tab.");
     }
-    const currentTab = tabs[0];
-    const url = currentTab.url;
+  }).catch((error) => {
+    console.error("Error getting current tab:", error);
+  });
 
-    console.log("Current Tab URL:", url); // Debugging log
-
-    if (!url || (!url.startsWith('http:') && !url.startsWith('https:'))) {
-       throw new Error("Cannot validate this URL type (requires http or https).");
-    }
-
-    // Encode URL for API calls
-    const encodedUrl = encodeURIComponent(url);
-
-    // 2. Call W3C Validators (run in parallel)
-    const [htmlResult, cssResult] = await Promise.all([
-      fetchHtmlValidation(encodedUrl),
-      fetchCssValidation(encodedUrl)
-    ]);
-
-    // 3. Display Results
-
-  } catch (error) {
-    console.error("Validation Error:", error);
-    resultsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-  }
 });
 
-// --- API Fetching Functions ---
 
-async function fetchHtmlValidation(encodedUrl) {
-  const apiUrl = `https://validator.w3.org/nu/?doc=${encodedUrl}&out=json`;
+async function getCurrentTab() {
+  let queryOptions = { active: true, lastFocusedWindow: true };
+  // `tab` will either be a `tabs.Tab` instance or `undefined`.
   try {
-    const response = await fetch(apiUrl);
-    // The HTML validator API returns 200 OK even for validation errors,
-    // but might return non-JSON or error status for network/server issues.
-    if (!response.ok) {
-        // Try to get more info if available
-        let errorText = response.statusText;
-        try {
-            const errorData = await response.json();
-            if (errorData && errorData.messages && errorData.messages.length > 0) {
-                errorText = errorData.messages[0].message; // Use first error message if available
-            }
-        } catch (e) { /* ignore if response wasn't JSON */ }
-        throw new Error(`HTML Validator API request failed: ${response.status} ${errorText}`);
-    }
-    const data = await response.json();
-    return data; // Contains a 'messages' array
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
   } catch (error) {
-    console.error("HTML Validation Fetch Error:", error);
-    // Return a structured error object for consistent handling
-    return { error: `Failed to fetch HTML validation: ${error.message}` };
+    console.error("Error querying for current tab:", error);
+    return undefined; // Return undefined on error
   }
 }
 
-async function fetchCssValidation(encodedUrl) {
-  // Note: Jigsaw CSS validator requires a specific User-Agent or it might block the request.
-  // Chrome extensions usually send a suitable one, but keep this in mind if issues arise.
-  const apiUrl = `https://jigsaw.w3.org/css-validator/validator?uri=${encodedUrl}&output=json&profile=css3`; // Using output=json
+async function validateHTML(url) {
+  const validator = "https://validator.w3.org/nu/";
+  const params = new URLSearchParams({
+    doc: url,
+    out: 'json'
+  });
+
   try {
-    const response = await fetch(apiUrl);
-     // CSS validator might return different statuses
-    if (!response.ok) {
-      throw new Error(`CSS Validator API request failed: ${response.status} ${response.statusText}`);
+    const response = await fetch(`${validator}?${params}`);
+    if (response.ok) {
+      const data = await response.json();
+      const errors = data.messages.filter(message => message.type === "error");
+      return errors
+      // return errors.length === 0 ? "Valid HTML" : `${errors.length} HTML errors found`;
     }
-    const data = await response.json();
-    // Check structure, sometimes it wraps results differently
-    if (data && data.cssvalidation) {
-        return data.cssvalidation; // Contains 'result' with 'errors' and 'warnings'
-    } else {
-        // Handle unexpected structure or potential API errors within the JSON
-        throw new Error("Unexpected CSS validation response format.");
-    }
+    return `Failed to validate HTML (${response.status})`;
   } catch (error) {
-    console.error("CSS Validation Fetch Error:", error);
-     // Return a structured error object
-    return { error: `Failed to fetch CSS validation: ${error.message}` };
+    return `Error validating HTML: ${error.message}`;
   }
 }
 
-// Simple HTML escaping function
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
+async function validateCSS(url) {
+  const validator = "https://jigsaw.w3.org/css-validator/validator";
+  const params = new URLSearchParams({
+    uri: url,
+    profile: 'css3',
+    output: 'json'
+  });
 
+  try {
+    const response = await fetch(`${validator}?${params}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.cssvalidation.validity) {
+        return "Valid CSS";
+      }
+      // return `${data.cssvalidation.errors.length} CSS errors found`;
+      return data.cssvalidation.errors.map(error => error.message).join('\n');
+    }
+    return `Failed to validate CSS (${response.status})`;
+  } catch (error) {
+    return `Error validating CSS: ${error.message}`;
+  }
+}

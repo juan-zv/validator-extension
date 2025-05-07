@@ -3,11 +3,6 @@
     --secondary-color: #1f1f1f;
 }
 
-html {
-    height: 100%;
-    box-sizing: border-box;
-}
-
 body {
     background-color: var(--primary-color);
     color: var(--secondary-color);    
@@ -31,6 +26,7 @@ body p {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    margin: 1rem 0.5rem
 }
 
 #validate-btn {
@@ -53,6 +49,25 @@ body p {
     box-shadow: none;
     translate: 5px 5px;
     transition: all 0.35s ease-in-out;
+}
+
+#footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+    margin: 1rem 0.5rem;
+}
+
+#footer a {
+    color: var(--secondary-color);
+    text-decoration: underline;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#footer p {
+    margin: 0 auto;
 }
 
 @media (prefers-color-scheme: dark) {
