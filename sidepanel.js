@@ -9,16 +9,27 @@ document.getElementById('validate-btn').addEventListener('click', () => {
   // Clear previous results
   resultsContainer.style.display = 'flex'; // Show the results container
 
-  HTMLerrors.textContent = "Validating HTML...";
-  CSSerrors.textContent = "Validating CSS...";
 
   getCurrentTab().then(async (tab) => {
     // Check if tab and tab.url exist before trying to log
     if (tab && tab.url && tab.url.startsWith('http')) {
       console.log("======= active tab url", tab.url); // Corrected: Use tab.url directly
       currentUrl = tab.url; // Store the URL in a variable for later use
-      HTMLerrors.textContent = await validateHTML(currentUrl); // Append the URL to the body (or handle it as needed)
-      CSSerrors.textContent = await validateCSS(currentUrl); // Append the URL to the body (or handle it as needed)
+      HTMLerrors.textContent = "Validating HTML...",
+        CSSerrors.textContent = "Validating CSS..."
+      try {
+        const [htmlResult, cssResult] = await Promise.all([
+          validateHTML(currentUrl), // Append the URL to the body (or handle it as needed)
+          validateCSS(currentUrl) // Append the URL to the body (or handle it as needed)
+        ]);
+        HTMLerrors.textContent = htmlResult;
+        CSSerrors.textContent = cssResult;
+      }
+      catch (error) {
+        console.error("Error during validation:", error);
+        HTMLerrors.textContent = "Error validating HTML";
+        CSSerrors.textContent = "Error validating CSS";
+      }
     } else if (tab) {
       console.log("======= active tab does not have a URL (e.g., internal page)", tab);
     } else {
